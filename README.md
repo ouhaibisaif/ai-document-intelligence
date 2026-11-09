@@ -1,6 +1,6 @@
 # DocuLens
 
-![Python 3.12](https://img.shields.io/badge/Python-3.12-3776AB?logo=python&logoColor=white)
+[![tests](https://github.com/ouhaibisaif/ai-document-intelligence/actions/workflows/tests.yml/badge.svg)](https://github.com/ouhaibisaif/ai-document-intelligence/actions/workflows/tests.yml) ![Python 3.12](https://img.shields.io/badge/Python-3.12-3776AB?logo=python&logoColor=white)
 ![FastAPI](https://img.shields.io/badge/FastAPI-009688?logo=fastapi&logoColor=white)
 ![React + TypeScript](https://img.shields.io/badge/React-TypeScript-61DAFB?logo=react&logoColor=black)
 ![PostgreSQL](https://img.shields.io/badge/PostgreSQL-16-4169E1?logo=postgresql&logoColor=white)
