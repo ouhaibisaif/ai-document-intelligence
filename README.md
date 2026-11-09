@@ -1,8 +1,26 @@
 # DocuLens
 
-A local-first AI document intelligence platform for uploading PDF, DOCX, and image files, extracting text, summarizing content, searching across documents, and chatting with selected documents through Ollama and Qwen.
+![Python 3.12](https://img.shields.io/badge/Python-3.12-3776AB?logo=python&logoColor=white)
+![FastAPI](https://img.shields.io/badge/FastAPI-009688?logo=fastapi&logoColor=white)
+![React + TypeScript](https://img.shields.io/badge/React-TypeScript-61DAFB?logo=react&logoColor=black)
+![PostgreSQL](https://img.shields.io/badge/PostgreSQL-16-4169E1?logo=postgresql&logoColor=white)
+![Docker Compose](https://img.shields.io/badge/Docker-Compose-2496ED?logo=docker&logoColor=white)
+![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)
 
-DocuLens does not require paid APIs. It uses FastAPI, PostgreSQL, ChromaDB, React, and a local Ollama model.
+**Upload a PDF, Word file or scanned image. DocuLens extracts the text, summarizes it, makes it searchable, and lets you chat with it, with the source snippets behind every answer.**
+
+- **Local-first, no paid APIs.** The LLM is `qwen2.5:7b` running in Ollama on your machine. Documents never leave it.
+- **A real RAG pipeline, end to end.** Extraction (PyMuPDF, python-docx, Tesseract OCR) → chunking → ChromaDB → retrieval → grounded answer with sources. Processing runs as a background task with `processing` / `completed` / `failed` status.
+- **Built like an app, not a notebook.** FastAPI + SQLAlchemy + Alembic + PostgreSQL behind a React/TypeScript UI, with upload validation, rate limiting and explicit CORS.
+
+**Run it** (Ollama on the host, then Docker for the rest):
+
+```bash
+ollama pull qwen2.5:7b && ollama serve
+docker compose up --build   # UI http://localhost:8080 · API docs http://localhost:8000/docs
+```
+
+At work I ship the same pattern with Django REST + Angular on Azure.
 
 ## Features
 
@@ -28,11 +46,20 @@ AI: Ollama with the default model `qwen2.5:7b`.
 
 ## Architecture
 
-See [docs/architecture.md](docs/architecture.md).
+```mermaid
+flowchart LR
+    UI["React + TypeScript UI<br/>(Vite, nginx in Docker)"] -->|REST| API["FastAPI backend"]
+    API -->|metadata, text, summaries, chat history| PG[("PostgreSQL")]
+    API -->|save with generated name| FS[/"uploads/"/]
+    API -.->|BackgroundTasks| PROC["process_document"]
+    PROC -->|PyMuPDF · python-docx · Tesseract OCR| TXT["clean + split into chunks"]
+    TXT -->|upsert chunks| CH[("ChromaDB")]
+    PROC -->|summarize| OL["Ollama · qwen2.5:7b<br/>(on the host)"]
+    API -->|search / top-4 chunks for chat| CH
+    API -->|question + retrieved chunks| OL
+```
 
-## Screenshots
-
-Add screenshots to `docs/screenshots/` after running the app locally.
+Details in [docs/architecture.md](docs/architecture.md).
 
 ## Installation Without Docker
 
